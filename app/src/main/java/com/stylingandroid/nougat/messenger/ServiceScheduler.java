@@ -73,6 +73,7 @@ public final class ServiceScheduler {
                 .setService(MessengerService.class)
                 .setExecutionWindow(nextStart, nextEnd)
                 .setUpdateCurrent(false)
+                .setPersisted(false)
                 .setTag(TAG)
                 .build();
         Log.d(TAG, String.format("Scheduled between: %d and %d", nextStart, nextEnd));
