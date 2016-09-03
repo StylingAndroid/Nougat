@@ -3,6 +3,7 @@ package com.stylingandroid.nougat.messenger;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GcmNetworkManager;
@@ -28,6 +29,7 @@ public final class ServiceScheduler {
 
     public static ServiceScheduler newInstance(Context context) {
         Context safeContext = context.getApplicationContext();
+        safeContext = ContextCompat.createDeviceProtectedStorageContext(safeContext);
         GcmNetworkManager networkManager = GcmNetworkManager.getInstance(safeContext);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(safeContext);
         boolean isEnabled = sharedPreferences.getBoolean(MESSENGER_ENABLED, true);
@@ -62,7 +64,7 @@ public final class ServiceScheduler {
         editor.apply();
     }
 
-    void scheduleService() {
+    public void scheduleService() {
         Random random = new Random();
         long nextStart = (random.nextInt(WINDOW_MAX_OFFSET) + 1) * HOURS_IN_SECONDS;
         long nextEnd = nextStart + WINDOW_SIZE;
