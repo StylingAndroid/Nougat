@@ -22,7 +22,6 @@
 
     <service
       android:name=".messenger.MessengerService"
-      android:directBootAware="true"
       android:exported="true"
       android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE"
       tools:ignore="UnusedAttribute">
