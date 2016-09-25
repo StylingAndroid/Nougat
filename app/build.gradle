@@ -20,14 +20,14 @@ android {
 }
 
 dependencies {
-    apt 'com.google.auto.value:auto-value:1.2'
-    provided 'com.google.auto.value:auto-value:1.2'
-    compile 'com.android.support:appcompat-v7:24.2.0'
+    compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'com.google.android.gms:play-services-gcm:9.4.0'
     compile 'com.google.code.gson:gson:2.7'
     testCompile 'junit:junit:4.12'
     testCompile 'org.assertj:assertj-core:2.5.0'
     testCompile 'org.mockito:mockito-core:1.10.19'
+    apt 'com.google.auto.value:auto-value:1.2'
+    provided 'com.google.auto.value:auto-value:1.2'
 }
 
 apply from: '../config/static_analysis.gradle'
