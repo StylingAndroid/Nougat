@@ -3,7 +3,6 @@ package com.stylingandroid.nougat.messenger;
 import android.app.Notification;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -40,32 +39,28 @@ final class NotificationBuilder {
         this.sharedPreferences = sharedPreferences;
     }
 
-    @SuppressWarnings("unused")
     void sendBundledNotification(Message message) {
-        String groupKey = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ? GROUP_KEY : null;
-        Notification notification = buildNotification(message, groupKey);
+        Notification notification = buildNotification(message, GROUP_KEY);
         notificationManager.notify(getNotificationId(), notification);
-        if (groupKey != null) {
-            Notification summary = buildSummary(message, groupKey);
-            notificationManager.notify(SUMMARY_ID, summary);
-        }
+        Notification summary = buildSummary(message, GROUP_KEY);
+        notificationManager.notify(SUMMARY_ID, summary);
     }
 
     private Notification buildNotification(Message message, String groupKey) {
         return new NotificationCompat.Builder(context)
-                    .setContentTitle(message.sender())
-                    .setContentText(message.message())
-                    .setWhen(message.timestamp())
-                    .setSmallIcon(R.drawable.ic_message)
-                    .setShowWhen(true)
-                    .setGroup(groupKey)
-                    .build();
+                .setContentTitle(message.sender())
+                .setContentText(message.message())
+                .setWhen(message.timestamp())
+                .setSmallIcon(R.drawable.ic_message)
+                .setShowWhen(true)
+                .setGroup(groupKey)
+                .build();
     }
 
     private Notification buildSummary(Message message, String groupKey) {
         return new NotificationCompat.Builder(context)
                 .setContentTitle("Nougat Messenger")
-                .setContentText("Summary Body")
+                .setContentText("You have unread messages")
                 .setWhen(message.timestamp())
                 .setSmallIcon(R.drawable.ic_message)
                 .setShowWhen(true)
