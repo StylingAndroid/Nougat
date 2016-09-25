@@ -28,8 +28,11 @@ public final class ServiceScheduler {
     private boolean isEnabled;
 
     public static ServiceScheduler newInstance(Context context) {
-        Context safeContext = context.getApplicationContext();
-        safeContext = ContextCompat.createDeviceProtectedStorageContext(safeContext);
+        Context appContext = context.getApplicationContext();
+        Context safeContext = ContextCompat.createDeviceProtectedStorageContext(appContext);
+        if (safeContext == null) {
+            safeContext = appContext;
+        }
         GcmNetworkManager networkManager = GcmNetworkManager.getInstance(safeContext);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(safeContext);
         boolean isEnabled = sharedPreferences.getBoolean(MESSENGER_ENABLED, true);
