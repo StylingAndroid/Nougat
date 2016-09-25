@@ -11,6 +11,7 @@ public class MessengerService extends GcmTaskService {
 
     private Messenger messenger;
     private ServiceScheduler serviceScheduler;
+    private NotificationBuilder notificationBuilder;
 
     public MessengerService() {
     }
@@ -20,12 +21,14 @@ public class MessengerService extends GcmTaskService {
         super.onCreate();
         messenger = Messenger.newInstance(this);
         serviceScheduler = ServiceScheduler.newInstance(this);
+        notificationBuilder = NotificationBuilder.newInstance(this);
     }
 
     @Override
     public int onRunTask(TaskParams taskParams) {
         Message message = messenger.generateNewMessage();
         Log.d(TAG, message.toString());
+        notificationBuilder.sendBundledNotification(message);
         serviceScheduler.scheduleService();
         return GcmNetworkManager.RESULT_SUCCESS;
     }
