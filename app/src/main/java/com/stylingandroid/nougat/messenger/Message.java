@@ -1,6 +1,8 @@
 package com.stylingandroid.nougat.messenger;
 
 import com.google.auto.value.AutoValue;
+import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
 
 @AutoValue
 abstract class Message {
@@ -23,5 +25,9 @@ abstract class Message {
         abstract Builder timestamp(long timestamp);
 
         abstract Message build();
+    }
+
+    public static TypeAdapter<Message> typeAdapter(Gson gson) {
+        return new AutoValue_Message.GsonTypeAdapter(gson);
     }
 }

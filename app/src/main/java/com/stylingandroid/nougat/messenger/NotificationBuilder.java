@@ -4,21 +4,26 @@ import android.app.Notification;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 
 import com.stylingandroid.nougat.R;
 
+import java.util.List;
 final class NotificationBuilder {
 
     private static final String GROUP_KEY = "Messenger";
+    private static final String MESSAGES_KEY = "Messages";
     private static final String NOTIFICATION_ID = "com.stylingandroid.nougat.NOTIFICATION_ID";
     private static final int SUMMARY_ID = 0;
+    private static final String EMPTY_MESSAGE_STRING = "[]";
 
     private final Context context;
     private final NotificationManagerCompat notificationManager;
     private final SharedPreferences sharedPreferences;
+    private final MessageListMarshaller marshaller;
 
     static NotificationBuilder newInstance(Context context) {
         Context appContext = context.getApplicationContext();
@@ -28,15 +33,18 @@ final class NotificationBuilder {
         }
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(safeContext);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(safeContext);
-        return new NotificationBuilder(safeContext, notificationManager, sharedPreferences);
+        MessageListMarshaller marshaller = MessageListMarshaller.newInstance();
+        return new NotificationBuilder(safeContext, notificationManager, sharedPreferences, marshaller);
     }
 
     private NotificationBuilder(Context context,
                                 NotificationManagerCompat notificationManager,
-                                SharedPreferences sharedPreferences) {
+                                SharedPreferences sharedPreferences,
+                                MessageListMarshaller marshaller) {
         this.context = context.getApplicationContext();
         this.notificationManager = notificationManager;
         this.sharedPreferences = sharedPreferences;
+        this.marshaller = marshaller;
     }
 
     void sendBundledNotification(Message message) {
@@ -78,5 +86,23 @@ final class NotificationBuilder {
         editor.putInt(NOTIFICATION_ID, id);
         editor.apply();
         return id;
+    }
+    @NonNull
+    private List<Message> addMessage(Message newMessage) {
+        List<Message> messages = getMessages();
+        messages.add(newMessage);
+        saveMessages(messages);
+        return messages;
+    }
+
+    private void saveMessages(List<Message> messages) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(MESSAGES_KEY, marshaller.encode(messages));
+        editor.apply();
+    }
+
+    private List<Message> getMessages() {
+        String messagesString = sharedPreferences.getString(MESSAGES_KEY, EMPTY_MESSAGE_STRING);
+        return marshaller.decode(messagesString);
     }
 }
