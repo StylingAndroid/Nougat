@@ -28,7 +28,8 @@ public class MessengerService extends GcmTaskService {
     public int onRunTask(TaskParams taskParams) {
         Message message = messenger.generateNewMessage();
         Log.d(TAG, message.toString());
-        notificationBuilder.sendBundledNotification(message);
+        //notificationBuilder.sendBundledNotification(message);
+        notificationBuilder.sendMessagingStyleNotification(message);
         serviceScheduler.scheduleService();
         return GcmNetworkManager.RESULT_SUCCESS;
     }

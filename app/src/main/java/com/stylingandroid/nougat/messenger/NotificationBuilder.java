@@ -19,6 +19,7 @@ final class NotificationBuilder {
     private static final String NOTIFICATION_ID = "com.stylingandroid.nougat.NOTIFICATION_ID";
     private static final int SUMMARY_ID = 0;
     private static final String EMPTY_MESSAGE_STRING = "[]";
+    private static final String MY_DISPLAY_NAME = "Me";
 
     private final Context context;
     private final NotificationManagerCompat notificationManager;
@@ -47,6 +48,7 @@ final class NotificationBuilder {
         this.marshaller = marshaller;
     }
 
+    @SuppressWarnings("unused")
     void sendBundledNotification(Message message) {
         Notification notification = buildNotification(message, GROUP_KEY);
         notificationManager.notify(getNotificationId(), notification);
@@ -87,6 +89,13 @@ final class NotificationBuilder {
         editor.apply();
         return id;
     }
+
+    @SuppressWarnings("unused")
+    void sendMessagingStyleNotification(Message newMessage) {
+        List<Message> messages = addMessage(newMessage);
+        updateMessagingStyleNotification(messages);
+    }
+
     @NonNull
     private List<Message> addMessage(Message newMessage) {
         List<Message> messages = getMessages();
@@ -104,5 +113,26 @@ final class NotificationBuilder {
     private List<Message> getMessages() {
         String messagesString = sharedPreferences.getString(MESSAGES_KEY, EMPTY_MESSAGE_STRING);
         return marshaller.decode(messagesString);
+    }
+
+    private void updateMessagingStyleNotification(List<Message> messages) {
+        NotificationCompat.MessagingStyle messagingStyle = buildMessageList(messages);
+        Notification notification = new NotificationCompat.Builder(context)
+                .setStyle(messagingStyle)
+                .setSmallIcon(R.drawable.ic_message)
+                .build();
+        notificationManager.notify(SUMMARY_ID, notification);
+
+    }
+
+    private NotificationCompat.MessagingStyle buildMessageList(List<Message> messages) {
+        NotificationCompat.MessagingStyle messagingStyle =
+                new NotificationCompat.MessagingStyle(MY_DISPLAY_NAME)
+                        .setConversationTitle("Messenger");
+        for (Message message : messages) {
+            String sender = message.sender().equals(MY_DISPLAY_NAME) ? null : message.sender();
+            messagingStyle.addMessage(message.message(), message.timestamp(), sender);
+        }
+        return messagingStyle;
     }
 }
