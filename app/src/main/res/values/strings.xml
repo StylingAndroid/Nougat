@@ -1,6 +1,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
   <string name="app_name">Nougat</string>
   <string name="toggle_messages">Toggle Messages</string>
+  <string name="clear">Clear Messages</string>
+  <string name="reply">Reply</string>
 
   <string-array name="phrases"
     tools:ignore="Typos">

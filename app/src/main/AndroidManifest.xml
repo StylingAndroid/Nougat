@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:tools="http://schemas.android.com/tools"
   package="com.stylingandroid.nougat">
@@ -16,7 +17,6 @@
     <activity android:name=".MainActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
-
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
@@ -28,9 +28,10 @@
       tools:ignore="UnusedAttribute">
       <intent-filter>
         <action android:name="com.google.android.gms.gcm.ACTION_TASK_READY" />
+        <action android:name="com.stylingandroid.nougat.ACTION_CLEAR_MESSAGES" />
+        <action android:name="com.stylingandroid.nougat.ACTION_REPLY" />
       </intent-filter>
     </service>
-
     <service
       android:name=".MessengerTileService"
       android:icon="@drawable/ic_message"

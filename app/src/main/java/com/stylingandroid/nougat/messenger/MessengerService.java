@@ -1,5 +1,6 @@
 package com.stylingandroid.nougat.messenger;
 
+import android.content.Intent;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GcmNetworkManager;
@@ -7,7 +8,10 @@ import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.TaskParams;
 
 public class MessengerService extends GcmTaskService {
-    private static final String TAG = MessengerService.class.getCanonicalName();
+    public static final String ACTION_CLEAR_MESSAGES = "com.stylingandroid.nougat.ACTION_CLEAR_MESSAGES";
+    public static final String ACTION_REPLY = "com.stylingandroid.nougat.ACTION_REPLY";
+
+    private static final String TAG = "MessengerService";
 
     private Messenger messenger;
     private ServiceScheduler serviceScheduler;
@@ -22,6 +26,20 @@ public class MessengerService extends GcmTaskService {
         messenger = Messenger.newInstance(this);
         serviceScheduler = ServiceScheduler.newInstance(this);
         notificationBuilder = NotificationBuilder.newInstance(this);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        String action = intent.getAction();
+        if (ACTION_CLEAR_MESSAGES.equals(action)) {
+            notificationBuilder.clearMessages();
+            return START_NOT_STICKY;
+        }
+        if (ACTION_REPLY.equals(action)) {
+            notificationBuilder.reply(intent);
+            return START_NOT_STICKY;
+        }
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override

@@ -1,24 +1,34 @@
 package com.stylingandroid.nougat.messenger;
 
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.app.RemoteInput;
 import android.support.v4.content.ContextCompat;
 
 import com.stylingandroid.nougat.R;
 
+import java.util.Collections;
 import java.util.List;
+
 final class NotificationBuilder {
 
     private static final String GROUP_KEY = "Messenger";
     private static final String MESSAGES_KEY = "Messages";
+    private static final String REPLY_KEY = "Reply";
     private static final String NOTIFICATION_ID = "com.stylingandroid.nougat.NOTIFICATION_ID";
     private static final int SUMMARY_ID = 0;
     private static final String EMPTY_MESSAGE_STRING = "[]";
+    private static final Intent CLEAR_MESSAGES_INTENT = new Intent(MessengerService.ACTION_CLEAR_MESSAGES);
+    private static final Intent REPLY_INTENT = new Intent(MessengerService.ACTION_REPLY);
     private static final String MY_DISPLAY_NAME = "Me";
 
     private final Context context;
@@ -117,9 +127,13 @@ final class NotificationBuilder {
 
     private void updateMessagingStyleNotification(List<Message> messages) {
         NotificationCompat.MessagingStyle messagingStyle = buildMessageList(messages);
+        NotificationCompat.Action clearMessagesAction = buildClearMessagesAction();
+        NotificationCompat.Action replyAction = buildReplyAction(R.string.reply);
         Notification notification = new NotificationCompat.Builder(context)
                 .setStyle(messagingStyle)
                 .setSmallIcon(R.drawable.ic_message)
+                .addAction(clearMessagesAction)
+                .addAction(replyAction)
                 .build();
         notificationManager.notify(SUMMARY_ID, notification);
 
@@ -134,5 +148,41 @@ final class NotificationBuilder {
             messagingStyle.addMessage(message.message(), message.timestamp(), sender);
         }
         return messagingStyle;
+    }
+
+    private NotificationCompat.Action buildClearMessagesAction() {
+        PendingIntent clearPendingIntent = PendingIntent.getService(context, 0, CLEAR_MESSAGES_INTENT, PendingIntent.FLAG_CANCEL_CURRENT);
+        return new NotificationCompat.Action.Builder(R.drawable.ic_clear, context.getString(R.string.clear), clearPendingIntent)
+                .build();
+    }
+
+    private NotificationCompat.Action buildReplyAction(@StringRes int replyLabelId) {
+        String replyLabel = context.getString(replyLabelId);
+        PendingIntent replyPendingIntent = PendingIntent.getService(context, 0, REPLY_INTENT, PendingIntent.FLAG_CANCEL_CURRENT);
+        RemoteInput remoteInput = new RemoteInput.Builder(REPLY_KEY)
+                .setLabel(replyLabel)
+                .build();
+        return new NotificationCompat.Action.Builder(R.drawable.ic_reply, replyLabel, replyPendingIntent)
+                .addRemoteInput(remoteInput)
+                .setAllowGeneratedReplies(true)
+                .build();
+    }
+
+    void clearMessages() {
+        saveMessages(Collections.<Message>emptyList());
+        notificationManager.cancel(SUMMARY_ID);
+    }
+
+    void reply(Intent intent) {
+        Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
+        if (remoteInput != null) {
+            String messageText = remoteInput.getString(REPLY_KEY);
+            Message message = Message.builder()
+                    .message(messageText)
+                    .sender(MY_DISPLAY_NAME)
+                    .timestamp(System.currentTimeMillis())
+                    .build();
+            sendMessagingStyleNotification(message);
+        }
     }
 }
